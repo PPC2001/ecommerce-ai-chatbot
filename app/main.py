@@ -14,6 +14,24 @@ Security measures implemented:
 
 import logging
 import logging.config
+import os
+import tempfile
+
+# ---------------------------------------------------------------------------
+# Dynamic Credentials support for platforms like Hugging Face / Heroku
+# Writes JSON key from GOOGLE_CREDENTIALS_JSON_STRING env variable to a temp file
+# ---------------------------------------------------------------------------
+credentials_json = os.environ.get("GOOGLE_CREDENTIALS_JSON_STRING")
+if credentials_json:
+    try:
+        temp_dir = tempfile.gettempdir()
+        credentials_path = os.path.join(temp_dir, "google-credentials.json")
+        with open(credentials_path, "w", encoding="utf-8") as f:
+            f.write(credentials_json)
+        os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = credentials_path
+        logging.info("Successfully loaded Google Application Credentials from environment variable")
+    except Exception as e:
+        logging.error("Failed to write GOOGLE_CREDENTIALS_JSON_STRING to file: %s", e)
 
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
@@ -22,6 +40,7 @@ from slowapi import Limiter, _rate_limit_exceeded_handler
 from slowapi.errors import RateLimitExceeded
 from slowapi.middleware import SlowAPIMiddleware
 from slowapi.util import get_remote_address
+
 
 from app.config import get_settings
 from app.middleware.security import SecurityHeadersMiddleware
