@@ -271,20 +271,47 @@ uv run python -m py_compile app/**/*.py && echo "Syntax OK"
 open http://localhost:8000/docs
 ```
 
+## 🚀 Production Deployment
+
+### Option A: Hugging Face Spaces (Free Tier)
+Deploy your container to Hugging Face Spaces for 24/7 free hosting.
+
+1. **Create Space**:
+   - Go to [huggingface.co/new-space](https://huggingface.co/new-space).
+   - Select **Docker** SDK → **Blank** template.
+   - Set Space Hardware to **CPU basic (Free)** and visibility to **Public**.
+
+2. **Add Remote & Push**:
+   - From this directory, add the remote and push (mapping your local `master` branch to Hugging Face's default `main` branch):
+     ```bash
+     git remote add hf https://huggingface.co/spaces/<your-username>/<your-space-name>
+     git push -f hf master:main
+     ```
+
+3. **Variables & Secrets**:
+   - Go to the **Settings** tab in your Hugging Face Space → **Variables and secrets**.
+   - Create a **Secret** named `GOOGLE_CREDENTIALS_JSON_STRING` and paste the entire JSON text from your Google Cloud Service Account Key file.
+   - Create **Variables** for configuration:
+     * `GOOGLE_CLOUD_PROJECT` = `your-active-gcp-project-id`
+     * `GOOGLE_CLOUD_LOCATION` = `us-central1`
+     * `GEMINI_MODEL` = `gemini-2.5-pro`
+     * `APP_ENV` = `production`
+     * `ALLOWED_ORIGINS` = `https://<your-vercel-domain>.vercel.app`
+     * `RATE_LIMIT_PER_MINUTE` = `60`
+
 ---
 
-## 🚀 Production Deployment (Cloud Run)
+### Option B: Google Cloud Run (Recommended for GCP)
+Deploy a scalable serverless container directly inside your GCP Project.
 
 ```bash
-# Build container
-docker build -t ecommerce-chatbot-backend .
-
-# Deploy to Cloud Run
+# Deploy to Cloud Run (Google will automatically build the source using Dockerfile)
 gcloud run deploy ecommerce-chatbot-backend \
-  --image ecommerce-chatbot-backend \
+  --source . \
   --region us-central1 \
-  --set-env-vars GOOGLE_CLOUD_PROJECT=your-project \
-  --allow-unauthenticated
+  --allow-unauthenticated \
+  --set-env-vars="GOOGLE_CLOUD_PROJECT=your-project-id,GOOGLE_CLOUD_LOCATION=us-central1,GEMINI_MODEL=gemini-2.5-pro,APP_ENV=production,ALLOWED_ORIGINS=https://your-vercel-domain.vercel.app,RATE_LIMIT_PER_MINUTE=60"
 ```
 
-> In production, set `APP_ENV=production` to disable `/docs` and `/openapi.json`.
+> **Note:** In production, set `APP_ENV=production` to disable interactive docs `/docs` and the schema `/openapi.json` for security.
+
