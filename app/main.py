@@ -100,13 +100,13 @@ app.add_middleware(SecurityHeadersMiddleware)
 # 2. Rate limiting
 app.add_middleware(SlowAPIMiddleware)
 
-# 3. CORS — strict allow-list, NO wildcards
+# 3. CORS — allow all for public API deployment to prevent routing/preflight issues
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=settings.allowed_origins_list,  # Only whitelisted origins
-    allow_credentials=False,  # No credentials (cookies) across origins
-    allow_methods=["GET", "POST"],  # Only the methods we need
-    allow_headers=["Content-Type", "Accept"],  # Minimal headers
+    allow_origins=["*"],  # Allow all origins for public chatbot API
+    allow_credentials=False,
+    allow_methods=["*"],  # Allow all methods (GET, POST, OPTIONS, etc.)
+    allow_headers=["*"],  # Allow all headers
     max_age=3600,
 )
 
