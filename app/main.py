@@ -22,16 +22,23 @@ import tempfile
 # Writes JSON key from GOOGLE_CREDENTIALS_JSON_STRING env variable to a temp file
 # ---------------------------------------------------------------------------
 credentials_json = os.environ.get("GOOGLE_CREDENTIALS_JSON_STRING")
+print("=== GOOGLE CREDENTIALS DEBUG ===")
+print("GOOGLE_CREDENTIALS_JSON_STRING env var exists:", credentials_json is not None)
 if credentials_json:
+    print("GOOGLE_CREDENTIALS_JSON_STRING length:", len(credentials_json.strip()))
     try:
         temp_dir = tempfile.gettempdir()
         credentials_path = os.path.join(temp_dir, "google-credentials.json")
         with open(credentials_path, "w", encoding="utf-8") as f:
             f.write(credentials_json)
         os.environ["GOOGLE_APPLICATION_CREDENTIALS"] = credentials_path
-        logging.info("Successfully loaded Google Application Credentials from environment variable")
+        print("Set GOOGLE_APPLICATION_CREDENTIALS to:", credentials_path)
+        print("File exists:", os.path.exists(credentials_path))
     except Exception as e:
-        logging.error("Failed to write GOOGLE_CREDENTIALS_JSON_STRING to file: %s", e)
+        print("Failed to write GOOGLE_CREDENTIALS_JSON_STRING to file:", e)
+else:
+    print("WARNING: GOOGLE_CREDENTIALS_JSON_STRING is empty or not found in environment!")
+print("================================")
 
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
