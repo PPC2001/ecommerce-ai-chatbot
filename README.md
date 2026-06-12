@@ -1,4 +1,15 @@
+---
+title: E-Commerce AI Chatbot Backend
+emoji: 🤖
+colorFrom: blue
+colorTo: indigo
+sdk: docker
+app_port: 7860
+pinned: false
+---
+
 # 🤖 E-Commerce AI Chatbot — Backend
+
 
 Python-based REST API powering the AI shopping assistant, built with **FastAPI**, **uv**, and **Google Vertex AI Gemini 2.5 Pro**.
 
